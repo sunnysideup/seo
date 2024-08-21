@@ -9,7 +9,6 @@
 
 namespace SilverStripers\SEO\Fields;
 
-
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
@@ -35,45 +34,44 @@ use SilverStripers\SEO\Model\Variable;
  */
 class SEOEditor extends FormField
 {
+    private static $allowed_actions = [
+        'duplicatecheck'
+    ];
 
-	private static $allowed_actions = [
-		'duplicatecheck'
-	];
+    private $record = null;
+    private $enableSettings = true;
+    private $enableSEOImages = true;
+    private $fallBackImage = null;
+    private $singular_name = null;
+    private $plural_name = null;
 
-	private $record = null;
-	private $enableSettings = true;
-	private $enableSEOImages = true;
-	private $fallBackImage = null;
-	private $singular_name = null;
-	private $plural_name = null;
+    public function __construct($name, $title = null, $value = null, $record = null)
+    {
+        parent::__construct($name, $title, $value);
+        $this->addExtraClass('stacked');
+        if($record) {
+            $this->setRecord($record);
+        }
+    }
 
-	public function __construct($name, $title = null, $value = null, $record = null)
-	{
-		parent::__construct($name, $title, $value);
-		$this->addExtraClass('stacked');
-		if($record){
-			$this->setRecord($record);
-		}
-	}
+    public function setRecord($record)
+    {
+        $this->record = $record;
+        return $this;
+    }
 
-	public function setRecord($record)
-	{
-		$this->record = $record;
-		return $this;
-	}
+    public function getRecord()
+    {
+        return $this->record;
+    }
 
-	public function getRecord()
-	{
-		return $this->record;
-	}
-
-	public function setEnableSettings($enable = true)
+    public function setEnableSettings($enable = true)
     {
         $this->enableSettings = $enable;
         return $this;
     }
 
-	public function setEnableSEOImages($enable = true)
+    public function setEnableSEOImages($enable = true)
     {
         $this->enableSEOImages = $enable;
         return $this;
@@ -128,8 +126,8 @@ class SEOEditor extends FormField
         return $this->record->i18n_plural_name();
     }
 
-	public function getSEOJSON()
-	{
+    public function getSEOJSON()
+    {
         $data = $this->record->SEOData();
         if ($this->value && is_array($this->value)) {
             foreach ($data as $key => $value) {
@@ -138,39 +136,39 @@ class SEOEditor extends FormField
                 }
             }
         }
-		return json_encode($data);
-	}
+        return json_encode($data);
+    }
 
-	public function getSEOJSONAttr()
-	{
-	    $data = $this->getSEOJSON();
-	    return Convert::raw2att($data);
-	}
+    public function getSEOJSONAttr()
+    {
+        $data = $this->getSEOJSON();
+        return Convert::raw2att($data);
+    }
 
-	public function getVariableDefinitionsJSONAttr()
+    public function getVariableDefinitionsJSONAttr()
     {
         return Convert::raw2att(json_encode(Variable::get_sort_variables()));
     }
 
-	public function getVariableMetaTitlesJSONAttr()
+    public function getVariableMetaTitlesJSONAttr()
     {
         return Convert::raw2att(json_encode(MetaTitleTemplate::meta_titles()));
     }
 
-	public function Field($properties = array())
-	{
-		Requirements::javascript('silverstripers/seo:client/dist/js/bundle.js');
-		Requirements::add_i18n_javascript('silverstripers/seo:client/lang', false, true);
-		return parent::Field($properties);
-	}
+    public function Field($properties = array())
+    {
+        Requirements::javascript('silverstripers/seo:client/dist/js/bundle.js');
+        Requirements::add_i18n_javascript('silverstripers/seo:client/lang', false, true);
+        return parent::Field($properties);
+    }
 
-	public function getRecordLink()
-	{
-		if($this->record && method_exists($this->record, 'AbsoluteLink')) {
-			return $this->record->AbsoluteLink();
-		}
-		return Director::absoluteBaseURL();
-	}
+    public function getRecordLink()
+    {
+        if($this->record && method_exists($this->record, 'AbsoluteLink')) {
+            return $this->record->AbsoluteLink();
+        }
+        return Director::absoluteBaseURL();
+    }
 
     public function getFields()
     {
@@ -189,8 +187,8 @@ class SEOEditor extends FormField
         return false;
     }
 
-	public function saveInto(DataObjectInterface $record)
-	{
+    public function saveInto(DataObjectInterface $record)
+    {
         if($this->isSavable()) {
             foreach($this->getFields() as $fieldName) {
                 if (isset($this->value[$fieldName])) {
@@ -198,7 +196,7 @@ class SEOEditor extends FormField
                 }
             }
         }
-	}
+    }
 
     public function setValue($value, $data = null)
     {
@@ -206,30 +204,30 @@ class SEOEditor extends FormField
         return $this;
     }
 
-	public function DuplicateCheckLink()
-	{
-		return $this->Link('duplicatecheck');
-	}
+    public function DuplicateCheckLink()
+    {
+        return $this->Link('duplicatecheck');
+    }
 
-	public function duplicatecheck()
-	{
-		$result = [
-			'checked'	=> 0,
-			'valid'		=> 1,
-			'duplicates'=> ''
-		];
-		if($this->record && $this->request->requestVar('Field') && $this->request->requestVar('Needle')) {
-			$result['checked'] = 1;
-			$list = DataList::create(get_class($this->record))
-				->filter($this->request->requestVar('Field') . ':PartialMatch', $this->request->requestVar('Needle'))
-				->exclude('ID', $this->record->ID);
-			if($list->count()) {
-				$result['valid'] = 0;
-				$result['duplicates'] = SEODataExtension::get_duplicates_list($list);
-			}
-		}
-		return json_encode($result);
-	}
+    public function duplicatecheck()
+    {
+        $result = [
+            'checked'	=> 0,
+            'valid'		=> 1,
+            'duplicates' => ''
+        ];
+        if($this->record && $this->request->requestVar('Field') && $this->request->requestVar('Needle')) {
+            $result['checked'] = 1;
+            $list = DataList::create(get_class($this->record))
+                ->filter($this->request->requestVar('Field') . ':PartialMatch', $this->request->requestVar('Needle'))
+                ->exclude('ID', $this->record->ID);
+            if($list->count()) {
+                $result['valid'] = 0;
+                $result['duplicates'] = SEODataExtension::get_duplicates_list($list);
+            }
+        }
+        return json_encode($result);
+    }
 
 
 }

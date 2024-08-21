@@ -19,59 +19,57 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\Reports\Report;
 use SilverStripe\Versioned\Versioned;
 
-
 class SEOReport extends Report
 {
+    public function title()
+    {
+        return _t(__CLASS__.'.SEOReport', 'SEO report');
+    }
 
-	public function title()
-	{
-		return _t(__CLASS__.'.SEOReport', 'SEO report');
-	}
+    public function group()
+    {
+        return _t(__CLASS__.'.SEOReportGroup', 'SEO reports');
+    }
 
-	public function group()
-	{
-		return _t(__CLASS__.'.SEOReportGroup', 'SEO reports');
-	}
+    public function getParameterFields()
+    {
+        return new FieldList(
+            TextField::create('Title'),
+            TextField::create('MetaTitle'),
+            TextField::create('MetaDescription'),
+            CheckboxField::create('DuplicatedOnes', 'Show only duplicate titles'),
+            CheckboxField::create('EmptyMetaTitles', 'Show only empty meta titles'),
+            CheckboxField::create('EmptyMetaDescriptions', 'Show only empty meta descriptions'),
+            CheckboxField::create('OnLive', 'Check live site')
+        );
+    }
 
-	public function getParameterFields()
-	{
-		return new FieldList(
-			TextField::create('Title'),
-			TextField::create('MetaTitle'),
-			TextField::create('MetaDescription'),
-			CheckboxField::create('DuplicatedOnes', 'Show only duplicate titles'),
-			CheckboxField::create('EmptyMetaTitles', 'Show only empty meta titles'),
-			CheckboxField::create('EmptyMetaDescriptions', 'Show only empty meta descriptions'),
-			CheckboxField::create('OnLive', 'Check live site')
-		);
-	}
+    public function columns()
+    {
+        return [
+            'Title' 			=> [
+                'title' 		=> 'Title',
+                'link' 			=> true,
+            ],
+            'MetaTitle' 		=> [
+                'title' 		=> 'Meta Title',
+                'link' 			=> true,
+            ],
+            'MetaDescription' 	=> [
+                'title' 		=> 'Meta Description',
+                'link' 			=> true,
+            ],
+            'SEOErrors'			=> [
+                'title'			=> 'Comments',
+                'link'			=> true
+            ]
 
-	public function columns()
-	{
-		return [
-			'Title' 			=> [
-				'title' 		=> 'Title',
-				'link' 			=> true,
-			],
-			'MetaTitle' 		=> [
-				'title' 		=> 'Meta Title',
-				'link' 			=> true,
-			],
-			'MetaDescription' 	=> [
-				'title' 		=> 'Meta Description',
-				'link' 			=> true,
-			],
-			'SEOErrors'			=> [
-				'title'			=> 'Comments',
-				'link'			=> true
-			]
+        ];
+    }
 
-		];
-	}
-
-	public function sourceRecords($params = null)
-	{
-	    if (ClassInfo::exists('SilverStripe\\CMS\\Model\\SiteTree')) {
+    public function sourceRecords($params = null, $sort = null, $limit = null)
+    {
+        if (ClassInfo::exists('SilverStripe\\CMS\\Model\\SiteTree')) {
             $stage = isset($params['OnLive']) ? Versioned::LIVE : Versioned::DRAFT;
             $list = Versioned::get_by_stage(SiteTree::class, $stage);
 
@@ -93,7 +91,7 @@ class SEOReport extends Report
 
             return $list;
         }
-	    return ArrayList::create();
-	}
+        return ArrayList::create();
+    }
 
 }
