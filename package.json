@@ -49,7 +49,7 @@
     "toposort": "^1.0.3",
     "url": "^0.11.0",
     "util": "0.10.3",
-    "validator": "^6.1.0"
+    "validator": "^13.15.20"
   },
   "devDependencies": {
     "@silverstripe/eslint-config": "^1.1.0",
