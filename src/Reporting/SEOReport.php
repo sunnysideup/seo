@@ -63,7 +63,7 @@ class SEOReport extends Report
 
 	public function sourceRecords($params = null)
 	{
-	    if (ClassInfo::exists(SiteTree::class)) {
+	    if (ClassInfo::exists('SilverStripe\\CMS\\Model\\SiteTree')) {
             $stage = isset($params['OnLive']) ? Versioned::LIVE : Versioned::DRAFT;
             $list = Versioned::get_by_stage(SiteTree::class, $stage);
 
